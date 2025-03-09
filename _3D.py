@@ -7,11 +7,11 @@ def _3DProjection(x, y, z, color, ID, pygame, screen):
     size = lib.objDrawSize * scale
     pygame.draw.rect(screen, lib.world[color], ((x * (lib.DTS / (z + 0.0001))) + (lib.ScreenW/2), (-y * (lib.DTS / (z + 0.0001))) + (lib.ScreenH/2),  lib.objDrawSize, lib.objDrawSize))
 
-def AddObj(x,y,z):
-    lib.obj.append([x,y,z])
+def AddObj(x,y,z,ID):
+    lib.obj.append([x,y,z,ID])
 
-def get_index(x, y, z):
-    if [x, y, z] in lib.obj:
+def get_index(x, y, z, ID):
+    if [x, y, z, ID] in lib.obj:
         return True
     return False
 
@@ -20,10 +20,13 @@ def createWorld():
         for x in range(lib.size[2]):
             for z in range(lib.size[0]):
                 gen = random.randint(0,5)
-                if gen > -1:
+                if gen > 3:
                     rand = random.choice((lib.WHITE, lib.LGRAY, lib.DGRAY))
                     lib.world.append(rand)
-                    AddObj(x * lib.objSize, y * lib.objSize, z * lib.objSize)
+                    AddObj(x * lib.objSize, y * lib.objSize, z * lib.objSize, 1)
+                else:
+                    lib.world.append(0)
+                    AddObj(x * lib.objSize, y * lib.objSize, z * lib.objSize, 0)
 
 def fillQuad(quad, color, x,y,z, i, pygame, screen):
     _3DProjection(x, y, z, color, i, pygame, screen)
@@ -90,9 +93,13 @@ def transform_render(pygame, screen):
     transformed_objects = []
     objNumb = 0
     for obj in lib.obj:
+        if obj[3] == 0:
+            objNumb += 1
+            continue
+        
         noRend = [0,0,0,0,0,0]
         for i in range(6):
-            idx = get_index(obj[0] + lib.check[i][0], obj[1] + lib.check[i][1], obj[2] + lib.check[i][2])
+            idx = get_index(obj[0] + lib.check[i][0], obj[1] + lib.check[i][1], obj[2] + lib.check[i][2], 1)
             if idx:
                 noRend[i] = 1
         if all(map(lambda ID: ID==1, noRend)):
