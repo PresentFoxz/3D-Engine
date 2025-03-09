@@ -19,7 +19,7 @@ def createWorld():
         for x in range(lib.size[2]):
             for z in range(lib.size[0]):
                 gen = random.randint(0,5)
-                if gen > 3:
+                if gen > -1:
                     AddObj(x * lib.objSize, y * lib.objSize, z * lib.objSize, random.randint(1,3))
                 else:
                     AddObj(x * lib.objSize, y * lib.objSize, z * lib.objSize, 0)
@@ -157,6 +157,13 @@ def drawFilledQuads(pygame, screen, vertices, color, x_step=lib.objFillSize, y_s
 
     fill_triangle(triangle1)
     fill_triangle(triangle2)
+
+def collide():
+    for iD in range(len(lib.obj)):
+        if (lib.obj[iD][0] + 5 < lib.Cam[0] < lib.obj[iD][0] - 1) and (lib.obj[iD][2] + 5 > lib.Cam[2] > lib.obj[iD][2] - 1) and ((lib.Cam[1] + 4 >= lib.obj[iD][1] + 5) or (lib.Cam[1] <= lib.obj[iD][1] - 1)):
+            lib.Cam[0] = lib.Last[0]
+            lib.Cam[2] = lib.Last[2]
+            lib.Cam[1] = lib.Last[1]
 
 def transform_render(pygame, screen):
     CamXDirSin = math.sin(0 - lib.rot[0])

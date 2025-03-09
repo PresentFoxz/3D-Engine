@@ -1,10 +1,11 @@
 Cam = [0,0,-5]
+Last = [0,0,-5]
 rot = [0,0]
 objRot = [0,0,0]
 obj = []
 vertexData = []
 quadData = []
-size = bytearray([10,10,10])
+size = bytearray([1,1,1])
 DTS = 100
 objSize = 4
 objDrawSize = 10

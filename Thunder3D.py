@@ -24,6 +24,10 @@ def movement():
     rot_delta = 0.1
     
     yaw = lib.rot[1]
+
+    lib.Last[0] = lib.Cam[0]
+    lib.Last[1] = lib.Cam[1]
+    lib.Last[2] = lib.Cam[2]
     
     if keyboard.is_pressed('w'):
         lib.Cam[0] += move_delta * math.sin(yaw)
@@ -64,6 +68,8 @@ def movement():
         lib.rot[1] = 0.1
     if lib.rot[1] < 0.1:
         lib.rot[1] = 6.25
+    
+    #_3D.collide()
 
 _3D.createWorld()
 _3D.createWorldData()
