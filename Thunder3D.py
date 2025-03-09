@@ -66,7 +66,7 @@ def movement():
         lib.rot[1] = 6.25
 
 _3D.createWorld()
-#_3D.createWorldData()
+_3D.createWorldData()
 
 running = True
 while running:
@@ -74,12 +74,15 @@ while running:
 
     movement()
     _3D.transform_render(pygame, screen)
-    posText = f"X: {int(lib.Cam[0])}, Y: {int(lib.Cam[1])}, Z: {int(lib.Cam[2])}"
-    rotText = f"RotX: {lib.rot[1]}, RotY: {lib.rot[0]}"
+    posText = f"Player Position: ( X: {int(lib.Cam[0])}, Y: {int(lib.Cam[1])}, Z: {int(lib.Cam[2])} )"
+    rotText = f"Player Rotation: ( RotX: {lib.rot[1]}, RotY: {lib.rot[0]} )"
+    fpsText = f"FPS: {clock.get_fps()}"
+    wldText = f"ChunkSize ( SizeX: {lib.size[0]}, SizeY: {lib.size[1]}, SizeZ: {lib.size[2]} )"
     text_to_screen(posText, text_font, lib.WHITE, 5, 5)
     text_to_screen(rotText, text_font, lib.WHITE, 5, 25)
-        
-    #print(clock.get_fps())
+    text_to_screen(fpsText, text_font, lib.WHITE, 5, 50)
+    text_to_screen(wldText, text_font, lib.WHITE, 5, 75)
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False

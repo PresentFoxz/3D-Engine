@@ -2,18 +2,24 @@ Cam = [0,0,-5]
 rot = [0,0]
 objRot = [0,0,0]
 obj = []
-world = []
 vertexData = []
 quadData = []
-size = bytearray([7,7,7])
+size = bytearray([16,25,16])
 DTS = 100
 objSize = 4
 objDrawSize = 10
 
+BLACK = (0, 0, 0)
 LGRAY = (150, 150, 150)
 WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
 DGRAY = (50, 50, 50)
+
+color = [
+    BLACK,
+    WHITE,
+    LGRAY,
+    DGRAY
+]
 
 ScreenW, ScreenH = 1200, 740
 
