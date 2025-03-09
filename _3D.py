@@ -34,18 +34,13 @@ def RotationMatrix(x,y,z, sin1,cos1,sin2,cos2):
     return lib.objRot[0], lib.objRot[1], lib.objRot[2]
 
 def compute_normal(v0, v1, v2, v3):
-    u1 = (v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2])
-    v1 = (v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2])
-    normal1 = (u1[1] * v1[2] - u1[2] * v1[1], u1[2] * v1[0] - u1[0] * v1[2], u1[0] * v1[1] - u1[1] * v1[0])
-
-    u2 = (v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2])
-    v2 = (v3[0] - v0[0], v3[1] - v0[1], v3[2] - v0[2])
-    normal2 = (u2[1] * v2[2] - u2[2] * v2[1], u2[2] * v2[0] - u2[0] * v2[2], u2[0] * v2[1] - u2[1] * v2[0])
+    u = (v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2])
+    v = (v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2])
 
     normal = (
-        (normal1[0] + normal2[0]) / 2,
-        (normal1[1] + normal2[1]) / 2,
-        (normal1[2] + normal2[2]) / 2
+        u[1] * v[2] - u[2] * v[1],
+        u[2] * v[0] - u[0] * v[2],
+        u[0] * v[1] - u[1] * v[0]
     )
 
     length = ((normal[0]**2 + normal[1]**2 + normal[2]**2) ** 0.5) + 0.0001
@@ -97,9 +92,8 @@ def createWorldData():
             [obj[0], obj[1], (obj[2] + lib.objSize)], [(obj[0] + lib.objSize), obj[1], (obj[2] + lib.objSize)],                               # 001 101
             [(obj[0] + lib.objSize), (obj[1] + lib.objSize), (obj[2] + lib.objSize)], [obj[0],(obj[1] + lib.objSize), (obj[2] + lib.objSize)] # 111 011
         ]
-        quadAdd = 0
         
-        for i in range(6):
+        for i in range(len(lib.quad)):
             if noRend[i] == 0:
                 data = [lib.quad[i][0] + indx, lib.quad[i][1] + indx, lib.quad[i][2] + indx, lib.quad[i][3] + indx]
                 lib.quadData.append(data)
@@ -116,6 +110,54 @@ def createWorldData():
     print("Vert:", lib.vertexData)
     print("Quad:", lib.quadData)
 
+def drawOutlineQuads(pygame, screen, vertices, color):
+    vertices = sorted(vertices, key=lambda v: v[1])
+    v1, v2, v3, v4 = vertices
+
+    def draw_line(p1, p2):
+        pygame.draw.line(screen, color, p1, p2, 10)
+
+    draw_line(v1, v2)
+    draw_line(v3, v4)
+    draw_line(v2, v4)
+    draw_line(v1, v3)
+
+def drawFilledQuads(pygame, screen, vertices, color, x_step=lib.objFillSize, y_step=lib.objFillSize):
+    vertices = sorted(vertices, key=lambda v: v[1])
+
+    triangle1 = [vertices[0], vertices[1], vertices[2]]
+    triangle2 = [vertices[1], vertices[3], vertices[2]]
+
+    def fill_triangle(triangle):
+        triangle = sorted(triangle, key=lambda v: v[1])
+
+        min_y = math.ceil(triangle[0][1])
+        max_y = math.ceil(triangle[-1][1])
+
+        for y in range(min_y, max_y + 1, y_step):
+            intersections = []
+
+            for i in range(len(triangle)):
+                v1 = triangle[i]
+                v2 = triangle[(i + 1) % len(triangle)]
+
+                if (v1[1] <= y < v2[1]) or (v2[1] <= y < v1[1]):
+                    if v1[1] != v2[1]:
+                        t = (y - v1[1]) / ((v2[1] - v1[1]) + 0.001)
+                        x_intersect = v1[0] + t * (v2[0] - v1[0])
+                        intersections.append(x_intersect)
+
+            intersections.sort()
+
+            if len(intersections) == 2:
+                x_start, x_end = math.ceil(intersections[0]), math.ceil(intersections[1])
+
+                for x in range(x_start, x_end, x_step):
+                    pygame.draw.rect(screen, color, (x, y, lib.objFillSize, lib.objFillSize))
+
+    fill_triangle(triangle1)
+    fill_triangle(triangle2)
+
 def transform_render(pygame, screen):
     CamXDirSin = math.sin(0 - lib.rot[0])
     CamXDirCos = math.cos(0 - lib.rot[0])
@@ -123,19 +165,16 @@ def transform_render(pygame, screen):
     CamYDirCos = math.cos(0 - lib.rot[1])
     
     transformed_objects = []
-    for i, z in enumerate(lib.quadData):
+    for z in lib.quadData:
         dP = computeDotProduct(lib.vertexData, z)
         if dP > 0:
             continue
         for p in z:
             rotX, rotY, rotZ = RotationMatrix(lib.vertexData[p][0][0] - lib.Cam[0], lib.vertexData[p][0][1] - lib.Cam[1], lib.vertexData[p][0][2] - lib.Cam[2], CamYDirSin, CamYDirCos, CamXDirSin, CamXDirCos)
-            transformed_objects.append((rotX, rotY, rotZ, lib.vertexData[p][1]))
+            if lib.maxDist > rotZ > 0:
+                transformed_objects.append((rotX, rotY, rotZ, lib.vertexData[p][1]))
             
-    sorted_objects = sorted(
-        [obj for obj in transformed_objects if lib.maxDist > obj[2] > 0], 
-        key=lambda obj: obj[2], 
-        reverse=True
-    )
+    sorted_objects = sorted(transformed_objects, key=lambda objs: objs[2], reverse=True)
 
     for tx, ty, tz, iD in sorted_objects:
         _3DProjection(tx, ty, tz, iD, pygame, screen)

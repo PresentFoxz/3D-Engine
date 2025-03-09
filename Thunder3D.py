@@ -61,8 +61,8 @@ def movement():
     if lib.rot[0] > 1.5:
         lib.rot[0] = 1.5
     if lib.rot[1] > 6.25:
-        lib.rot[1] = 0
-    if lib.rot[1] < 0:
+        lib.rot[1] = 0.1
+    if lib.rot[1] < 0.1:
         lib.rot[1] = 6.25
 
 _3D.createWorld()
@@ -75,7 +75,7 @@ def __Init__(x,y,z,rx,ry):
     lib.rot[0] = rx
     lib.rot[1] = ry
 
-__Init__(random.randint(2, 62), random.randint(102, 110), random.randint(2, 62), 0, 0)
+#__Init__(random.randint(2, 62), random.randint(102, 110), random.randint(2, 62), 0, 0)
 
 running = True
 while running:
