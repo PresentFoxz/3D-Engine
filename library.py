@@ -1,4 +1,4 @@
-Cam = [0,0,-5]
+Cam = [0,0,0]
 rot = [0,0]
 objRot = [0,0,0]
 obj = []
@@ -8,6 +8,7 @@ size = bytearray([16,25,16])
 DTS = 100
 objSize = 4
 objDrawSize = 10
+maxDist = 20
 
 BLACK = (0, 0, 0)
 LGRAY = (150, 150, 150)

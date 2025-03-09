@@ -68,13 +68,22 @@ def movement():
 _3D.createWorld()
 _3D.createWorldData()
 
+def __Init__(x,y,z,rx,ry):
+    lib.Cam[0] = x
+    lib.Cam[1] = y
+    lib.Cam[2] = z
+    lib.rot[0] = rx
+    lib.rot[1] = ry
+
+__Init__(random.randint(2, 62), random.randint(102, 110), random.randint(2, 62), 0, 0)
+
 running = True
 while running:
     screen.fill((0, 0, 0))
 
     movement()
     _3D.transform_render(pygame, screen)
-    posText = f"Player Position: ( X: {int(lib.Cam[0])}, Y: {int(lib.Cam[1])}, Z: {int(lib.Cam[2])} )"
+    posText = f"Player Position: ( X: {int(lib.Cam[0]/4)}, Y: {int(lib.Cam[1]/4)}, Z: {int(lib.Cam[2]/4)} )"
     rotText = f"Player Rotation: ( RotX: {lib.rot[1]}, RotY: {lib.rot[0]} )"
     fpsText = f"FPS: {clock.get_fps()}"
     wldText = f"ChunkSize ( SizeX: {lib.size[0]}, SizeY: {lib.size[1]}, SizeZ: {lib.size[2]} )"

@@ -131,8 +131,11 @@ def transform_render(pygame, screen):
             rotX, rotY, rotZ = RotationMatrix(lib.vertexData[p][0][0] - lib.Cam[0], lib.vertexData[p][0][1] - lib.Cam[1], lib.vertexData[p][0][2] - lib.Cam[2], CamYDirSin, CamYDirCos, CamXDirSin, CamXDirCos)
             transformed_objects.append((rotX, rotY, rotZ, lib.vertexData[p][1]))
             
-    sorted_objects = sorted(transformed_objects, key=lambda objs: objs[2], reverse=True)
-    
+    sorted_objects = sorted(
+        [obj for obj in transformed_objects if lib.maxDist > obj[2] > 0], 
+        key=lambda obj: obj[2], 
+        reverse=True
+    )
+
     for tx, ty, tz, iD in sorted_objects:
-        if tz > 0:
-            _3DProjection(tx, ty, tz, iD, pygame, screen)
+        _3DProjection(tx, ty, tz, iD, pygame, screen)
