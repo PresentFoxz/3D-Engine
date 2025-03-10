@@ -31,11 +31,11 @@ def movement():
         lib.Cam[0] -= move_delta * math.sin(yaw)
         lib.Cam[2] -= move_delta * math.cos(yaw)
 
-    if keyboard.is_pressed('a'):
+    if keyboard.is_pressed('d'):
         lib.Cam[0] -= move_delta * math.cos(yaw)
         lib.Cam[2] += move_delta * math.sin(yaw)
 
-    if keyboard.is_pressed('d'):
+    if keyboard.is_pressed('a'):
         lib.Cam[0] += move_delta * math.cos(yaw)
         lib.Cam[2] -= move_delta * math.sin(yaw)
 
@@ -43,9 +43,9 @@ def movement():
         lib.rot[0] -= rot_delta
     if keyboard.is_pressed('up'):
         lib.rot[0] += rot_delta
-    if keyboard.is_pressed('right'):
-        lib.rot[1] += rot_delta
     if keyboard.is_pressed('left'):
+        lib.rot[1] += rot_delta
+    if keyboard.is_pressed('right'):
         lib.rot[1] -= rot_delta
 
     if keyboard.is_pressed('e'):

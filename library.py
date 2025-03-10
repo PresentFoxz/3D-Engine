@@ -7,11 +7,10 @@ objRot = [0,0,0]
 obj = []
 vertexData = []
 quadData = []
-size = bytearray([7,10,7])
+size = bytearray([1,1,1])
 distToScreen = 100
 objSize = 4
 objDrawSize = 10
-objFillSize = None
 maxDist = 20
 
 BLACK = (0, 0, 0)
@@ -26,13 +25,16 @@ color = [
     DGRAY
 ]
 
-style = "Thumby"
+style = "Main"
 if style == "Main":
     ScreenW, ScreenH = 1200, 740
+    objFillSize = 7
 elif style == "Thumby":
     ScreenW, ScreenH = 72, 40
+    objFillSize = 10
 elif style == "Playdate":
     ScreenW, ScreenH = 400, 240
+    objFillSize = 7
 
 check = [
     [0,0,-4],[0,0,4],
