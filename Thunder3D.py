@@ -11,19 +11,17 @@ pygame.init()
 i = 0
 screen = pygame.display.set_mode((lib.ScreenW, lib.ScreenH))
 pygame.display.set_caption("Thunder3D")
-pygame.font.init()
-text_font = pygame.font.SysFont('Arial', 20)
 clock = pygame.time.Clock()
-
-def text_to_screen(text, font, color, x, y):
-    img = font.render(text, True, color)
-    screen.blit(img, (x,y))
 
 def movement():
     move_delta = 0.5
     rot_delta = 0.1
     
     yaw = lib.rot[1]
+
+    lib.Last[0] = lib.Cam[0]
+    lib.Last[1] = lib.Cam[1]
+    lib.Last[2] = lib.Cam[2]
     
     if keyboard.is_pressed('w'):
         lib.Cam[0] += move_delta * math.sin(yaw)
@@ -64,6 +62,16 @@ def movement():
         lib.rot[1] = 0.1
     if lib.rot[1] < 0.1:
         lib.rot[1] = 6.25
+    
+    if keyboard.is_pressed('u'):
+        lib.distToScreen = 100
+    if keyboard.is_pressed('i'):
+        lib.distToScreen = 300
+    if keyboard.is_pressed('o'):
+        lib.distToScreen = 500
+    
+    
+    #_3D.collide()
 
 _3D.createWorld()
 _3D.createWorldData()
@@ -83,14 +91,15 @@ while running:
 
     movement()
     _3D.transform_render(pygame, screen)
-    posText = f"Player Position: ( X: {int(lib.Cam[0]/4)}, Y: {int(lib.Cam[1]/4)}, Z: {int(lib.Cam[2]/4)} )"
-    rotText = f"Player Rotation: ( RotX: {lib.rot[1]}, RotY: {lib.rot[0]} )"
-    fpsText = f"FPS: {clock.get_fps()}"
-    wldText = f"ChunkSize ( SizeX: {lib.size[0]}, SizeY: {lib.size[1]}, SizeZ: {lib.size[2]} )"
-    text_to_screen(posText, text_font, lib.WHITE, 5, 5)
-    text_to_screen(rotText, text_font, lib.WHITE, 5, 25)
-    text_to_screen(fpsText, text_font, lib.WHITE, 5, 50)
-    text_to_screen(wldText, text_font, lib.WHITE, 5, 75)
+    if lib.style == "Main":
+        posText = f"Player Position: ( X: {int(lib.Cam[0]/4)}, Y: {int(lib.Cam[1]/4)}, Z: {int(lib.Cam[2]/4)} )"
+        rotText = f"Player Rotation: ( RotX: {lib.rot[1]}, RotY: {lib.rot[0]} )"
+        fpsText = f"FPS: {clock.get_fps()}"
+        wldText = f"ChunkSize ( SizeX: {lib.size[0]}, SizeY: {lib.size[1]}, SizeZ: {lib.size[2]} )"
+        lib.text_to_screen(posText, lib.WHITE, 5, 5, screen)
+        lib.text_to_screen(rotText, lib.WHITE, 5, 25, screen)
+        lib.text_to_screen(fpsText, lib.WHITE, 5, 50, screen)
+        lib.text_to_screen(wldText, lib.WHITE, 5, 75, screen)
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
