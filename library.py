@@ -1,14 +1,17 @@
+import pygame
+
 Cam = [0,0,-5]
+Last = [0,0,-5]
 rot = [0,0]
 objRot = [0,0,0]
 obj = []
 vertexData = []
 quadData = []
-size = bytearray([10,10,10])
-DTS = 100
+size = bytearray([7,10,7])
+distToScreen = 100
 objSize = 4
 objDrawSize = 10
-objFillSize = 10
+objFillSize = None
 maxDist = 20
 
 BLACK = (0, 0, 0)
@@ -23,7 +26,13 @@ color = [
     DGRAY
 ]
 
-ScreenW, ScreenH = 1200, 740
+style = "Thumby"
+if style == "Main":
+    ScreenW, ScreenH = 1200, 740
+elif style == "Thumby":
+    ScreenW, ScreenH = 72, 40
+elif style == "Playdate":
+    ScreenW, ScreenH = 400, 240
 
 check = [
     [0,0,-4],[0,0,4],
@@ -39,3 +48,10 @@ quad = [
     [2, 3, 7, 6],  # Top
     [0, 1, 5, 4],  # Bottom
 ]
+
+pygame.font.init()
+txtFont = pygame.font.SysFont('Arial', 20)
+
+def text_to_screen(text, color, x, y, screen):
+    img = txtFont.render(text, True, color)
+    screen.blit(img, (x,y))
