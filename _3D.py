@@ -1,13 +1,8 @@
 import library as lib
+import projection as proj
 import math
 import random
 import keyboard
-
-def _3DProjection(x, y, z, ID, i, pygame, screen):
-    scale = lib.distToScreen / (z + 0.0001)
-    screenX, screenY = ((x * (lib.distToScreen / (z + 0.0001))) + (lib.ScreenW/2), (-y * (lib.distToScreen / (z + 0.0001))) + (lib.ScreenH/2))
-    pygame.draw.rect(screen, lib.color[ID], (screenX, screenY, scale, scale))
-    lib.text_to_screen(str(i), (255, 0, 0), screenX, screenY - 30, screen)
 
 def AddObj(x,y,z,ID):
     lib.obj.append([x,y,z,ID])
@@ -26,54 +21,6 @@ def createWorld():
                     AddObj(x * lib.objSize, y * lib.objSize, z * lib.objSize, random.randint(1,3))
                 else:
                     AddObj(x * lib.objSize, y * lib.objSize, z * lib.objSize, 0)
-
-def RotationMatrix(x,y,z, sin1,cos1,sin2,cos2):
-    lib.objRot[0] = ((z * sin1) + (x * cos1))
-    lib.objRot[2] = ((z * cos1) - (x * sin1))
-
-    lib.objRot[1] = ((lib.objRot[2] * sin2) + (y * cos2))
-    lib.objRot[2] = ((lib.objRot[2] * cos2) - (y * sin2))
-
-    return lib.objRot[0], lib.objRot[1], lib.objRot[2]
-
-def compute_normal(v0, v1, v2, v3):
-    u = (v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2])
-    v = (v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2])
-
-    normal = (
-        u[1] * v[2] - u[2] * v[1],
-        u[2] * v[0] - u[0] * v[2],
-        u[0] * v[1] - u[1] * v[0]
-    )
-
-    length = ((normal[0]**2 + normal[1]**2 + normal[2]**2) ** 0.5) + 0.0001
-    normal = (normal[0] / length, normal[1] / length, normal[2] / length)
-
-    return normal
-
-def computeDotProduct(points, z):
-    v0 = points[z[0]][0]
-    v1 = points[z[1]][0]
-    v2 = points[z[2]][0]
-    v3 = points[z[3]][0]
-
-    normal = compute_normal(v0, v1, v2, v3)
-
-    quad_center = (
-        (v0[0] + v1[0] + v2[0] + v3[0]) / 4,
-        (v0[1] + v1[1] + v2[1] + v3[1]) / 4,
-        (v0[2] + v1[2] + v2[2] + v3[2]) / 4
-    )
-        
-    camera_vector = (
-        quad_center[0] - lib.Cam[0],
-        quad_center[1] - lib.Cam[1],
-        quad_center[2] - lib.Cam[2]
-    )
-
-    dot_product = normal[0] * camera_vector[0] + normal[1] * camera_vector[1] + normal[2] * camera_vector[2]
-
-    return dot_product
 
 def createWorldData():
     indx = 0
@@ -120,61 +67,18 @@ def collide():
             lib.Cam[2] = lib.Last[2]
             lib.Cam[1] = lib.Last[1]
 
-def drawQuadLines(quads, ID, pygame, screen):
-    end = False
-    try:
-        v1 = quads[0]
-        v2 = quads[1]
-        v3 = quads[2]
-        v4 = quads[3]
-    except Exception as e:
-        #print(e)
-        return
+def checkPos(points):
+    v1 = points[0]
+    v2 = points[1]
+    v3 = points[2]
+    v4 = points[3]
 
-    def draw_line(p1, p2):
-        x1, y1 = int(p1[0]), int(p1[1])
-        x2, y2 = int(p2[0]), int(p2[1])
-        pygame.draw.line(screen, lib.color[ID], (x1,y1),(x2,y2), 2)
+    xm = (v1[0] + v2[0] + v3[0] + v4[0])/4
+    ym = (v1[1] + v2[1] + v3[1] + v4[1])/4
+    zm = (v1[2] + v2[2] + v3[2] + v4[2])/4
 
-    draw_line(v1, v2)
-    draw_line(v3, v4)
-    draw_line(v1, v4)
-    draw_line(v2, v3)
+    return (xm, ym, zm)
 
-def drawFilledQuads(pygame, screen, vertices, iD, x_step, y_step):
-    triangle1 = sorted([vertices[0], vertices[1], vertices[2]], key=lambda v: v[1])
-    triangle2 = sorted([vertices[2], vertices[3], vertices[0]], key=lambda v: v[1])
-
-    def fill_triangle(triangle):
-        min_y = max(0, int(triangle[0][1]))
-        max_y = min(lib.ScreenH, int(triangle[-1][1]))
-
-        for y in range(min_y, max_y, y_step):
-            intersections = []
-
-            for i in range(3):
-                v1, v2 = triangle[i], triangle[(i + 1) % 3]
-                
-                if (v1[1] <= y < v2[1]) or (v2[1] <= y < v1[1]):
-                    dy = (v2[1] - v1[1])
-                    if dy != 0:
-                        t = (y - v1[1]) / dy
-                        x_intersect = v1[0] + t * (v2[0] - v1[0])
-                        intersections.append(int(x_intersect))
-
-            if len(intersections) == 2:
-                x_start, x_end = sorted(intersections)
-                x_start = max(0, x_start)
-                x_end = min(lib.ScreenW, x_end)
-
-                for x in range(x_start, x_end, x_step):
-                    if x_step == 1 and y_step == 1:
-                        screen.set_at((x, y), lib.color[iD])
-                    else:
-                        pygame.draw.rect(screen, lib.color[iD], (x, y, lib.objFillSize, lib.objFillSize))
-
-    fill_triangle(triangle1)
-    fill_triangle(triangle2)
 
 def transform_render(pygame, screen):
     CamXDirSin = math.sin(0 - lib.rot[0])
@@ -187,53 +91,53 @@ def transform_render(pygame, screen):
     pointDraw = False
     lineDraw = True
     for z in lib.quadData:
-        dP = computeDotProduct(lib.vertexData, z)
+        dP = proj.computeDotProduct(lib.vertexData, z)
         quad_add = []
-        first = True
+        saveMainPos = []
         if dP > 0:
             continue
         for p in z:
-            rotX, rotY, rotZ = RotationMatrix(lib.vertexData[p][0][0] - lib.Cam[0], lib.vertexData[p][0][1] - lib.Cam[1], lib.vertexData[p][0][2] - lib.Cam[2], CamYDirSin, CamYDirCos, CamXDirSin, CamXDirCos)
-            
-            if lib.maxDist > rotZ > 0 and lineDraw:
-                screenX, screenY = int((rotX * (lib.distToScreen / rotZ)) + (lib.ScreenW/2)), int((-rotY * (lib.distToScreen / rotZ)) + (lib.ScreenH/2))
+            rotX, rotY, rotZ = proj.RotationMatrix(lib.vertexData[p][0][0] - lib.Cam[0], lib.vertexData[p][0][1] - lib.Cam[1], lib.vertexData[p][0][2] - lib.Cam[2], CamYDirSin, CamYDirCos, CamXDirSin, CamXDirCos)
+            proj_matrix = proj.perspective_matrix(lib.distToScreen, (lib.ScreenW / lib.ScreenH), 0, lib.maxDist)
+            newX, newY, newZ = proj.apply_projection(proj_matrix, (rotX, rotY, rotZ))
+
+            screenX, screenY = int((newX * (lib.distToScreen / (newZ + 0.1))) + (lib.ScreenW/2)), int((newY * (lib.distToScreen / (newZ + 0.1))) + (lib.ScreenH/2))
+            col = lib.vertexData[p][1]
+            if -lib.maxDist < newZ < -0.1 and lineDraw:
                 quad_add.append([screenX, screenY])
-                col = lib.vertexData[p][1]
+            
+            saveMainPos.append([int(newX), int(newY), int(newZ)])
 
-                if first:
-                    setX, setY, setZ = int(rotX), int(rotY), int(rotZ)
-                    first = False
-
-            if lib.maxDist > rotZ > 0 and pointDraw:
-                transformed_objects.append((rotX, rotY, rotZ, lib.vertexData[p][1], p))
-        
+            if -lib.maxDist < newZ < -1 and pointDraw:
+                transformed_objects.append((screenX, screenY, int(lib.distToScreen / newZ), col))
+        setX, setY, setZ = checkPos(saveMainPos)
         try:
             all_quads.append([[setX, setY, setZ], quad_add, col])
         except Exception:
             continue
 
     if lineDraw:
-        sorted_quads = sorted(all_quads, key=lambda quadSet: quadSet[0][2], reverse=True)
+        #sorted_quads = sorted(all_quads, key=lambda quadSet: math.sqrt((quadSet[0][0] - lib.Cam[0])**2 + (quadSet[0][1] - lib.Cam[1])**2 + (quadSet[0][2] - lib.Cam[2])**2), reverse=True)
+        sorted_quads = sorted(all_quads, key=lambda quadSet: quadSet[0][2], reverse=False)
 
         for pos, allQuads, i in sorted_quads:
             try:
-                #drawQuadLines(quad_add, col, pygame, screen)
+                #proj.drawQuadLines(quad_add, col, screen)
                 
                 if lib.style == "Main":
-                    lMove, rMove = 1, 1
+                    lMove, rMove = 4, 4
                 if lib.style == "Thumby":
                     lMove, rMove = 7, 7
                     lib.objFillSize = 10
                 if lib.style == "Playdate":
                     lMove, rMove = 4, 4
                     lib.objFillSize = 7
-                drawFilledQuads(pygame, screen, allQuads, i, lMove, rMove)
+                proj.drawFilledQuads(screen, allQuads, i, lMove, rMove)
             except Exception as e:
-                #print(e)
                 pass
     
     if pointDraw:
         sorted_objects = sorted(transformed_objects, key=lambda objs: objs[2], reverse=True)
         
-        for tx, ty, tz, iD, i in sorted_objects:
-            _3DProjection(tx, ty, tz, iD, i, pygame, screen)
+        for tx, ty, s, c in sorted_objects:
+            proj.projectRect(tx, ty, s, c, 0, screen)
