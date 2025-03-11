@@ -1,7 +1,8 @@
 import library as lib
+import pygame
 import math
 
-def _3DProjection(x, y, scale, ID, i, draw, pygame, screen):
+def projectRect(x, y, scale, ID, draw, screen):
     pygame.draw.rect(screen, lib.color[ID], (x, y, scale, scale))
     if draw == 1:
         lib.text_to_screen(str(i), (255, 0, 0), x, y - 30, screen)
@@ -26,7 +27,7 @@ def drawQuadLines(quads, ID, pygame, screen):
     draw_line(v1, v4)
     draw_line(v2, v3)
 
-def drawFilledQuads(pygame, screen, vertices, iD, x_step, y_step):
+def drawFilledQuads(screen, vertices, iD, x_step, y_step):
     triangle1 = sorted([vertices[0], vertices[1], vertices[2]], key=lambda v: v[1])
     triangle2 = sorted([vertices[2], vertices[3], vertices[0]], key=lambda v: v[1])
 
@@ -115,7 +116,7 @@ def perspective_matrix(fov, aspect, near, far):
     return [
         [1 / (aspect * tan_half_fov), 0, 0, 0],
         [0, 1 / tan_half_fov, 0, 0],
-        [0, 0, -(far + near) / (far - near), (-2 * far * near) / (far - near)],
+        [0, 0, -((far + near) / (far - near)), -((2 * far * near) / (far - near))],
         [0, 0, -1, 0]
     ]
 
@@ -123,14 +124,16 @@ def apply_projection(matrix, point):
     x, y, z = point
     w = 1
 
-    projected_x = matrix[0][0] * x + matrix[0][2] * z
-    projected_y = matrix[1][1] * y + matrix[1][2] * z
-    projected_z = matrix[2][2] * z + matrix[2][3] * w
-    projected_w = matrix[3][2] * z + matrix[3][3] * w
+    projected_x = (matrix[0][0] * x) + (matrix[0][2] * z)
+    projected_y = (matrix[1][1] * y) + (matrix[1][2] * z)
+    projected_z = (matrix[2][2] * z) + (matrix[2][3] * w)
+    projected_w = (matrix[3][2] * z) + (matrix[3][3] * w)
+
+    #print(projected_x, projected_y, projected_z, projected_w)
     
-    if projected_w != 0:
-        projected_x /= -projected_w
-        projected_y /= -projected_w
-        projected_z /= -projected_w
+    #if projected_w != 0:
+    #    projected_x /= projected_w
+    #    projected_y /= projected_w
+    #    projected_z /= projected_w
 
     return (projected_x, projected_y, projected_z)

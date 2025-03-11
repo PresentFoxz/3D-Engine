@@ -17,7 +17,7 @@ def createWorld():
         for x in range(lib.size[2]):
             for z in range(lib.size[0]):
                 gen = random.randint(0,5)
-                if gen > -1:
+                if gen > 2:
                     AddObj(x * lib.objSize, y * lib.objSize, z * lib.objSize, random.randint(1,3))
                 else:
                     AddObj(x * lib.objSize, y * lib.objSize, z * lib.objSize, 0)
@@ -67,6 +67,19 @@ def collide():
             lib.Cam[2] = lib.Last[2]
             lib.Cam[1] = lib.Last[1]
 
+def checkPos(points):
+    v1 = points[0]
+    v2 = points[1]
+    v3 = points[2]
+    v4 = points[3]
+
+    xm = (v1[0] + v2[0] + v3[0] + v4[0])/4
+    ym = (v1[1] + v2[1] + v3[1] + v4[1])/4
+    zm = (v1[2] + v2[2] + v3[2] + v4[2])/4
+
+    return (xm, ym, zm)
+
+
 def transform_render(pygame, screen):
     CamXDirSin = math.sin(0 - lib.rot[0])
     CamXDirCos = math.cos(0 - lib.rot[0])
@@ -75,12 +88,12 @@ def transform_render(pygame, screen):
     
     transformed_objects = []
     all_quads = []
-    pointDraw = True
+    pointDraw = False
     lineDraw = True
     for z in lib.quadData:
         dP = proj.computeDotProduct(lib.vertexData, z)
         quad_add = []
-        first = True
+        saveMainPos = []
         if dP > 0:
             continue
         for p in z:
@@ -88,30 +101,28 @@ def transform_render(pygame, screen):
             proj_matrix = proj.perspective_matrix(lib.distToScreen, (lib.ScreenW / lib.ScreenH), 0, lib.maxDist)
             newX, newY, newZ = proj.apply_projection(proj_matrix, (rotX, rotY, rotZ))
 
-            print(newX, newY, newZ)
-            screenX, screenY = int((newX * (lib.distToScreen / newZ)) + (lib.ScreenW/2)), int((newY * (lib.distToScreen / newZ)) + (lib.ScreenH/2))
-            if lineDraw:
+            screenX, screenY = int((newX * (lib.distToScreen / (newZ + 0.1))) + (lib.ScreenW/2)), int((newY * (lib.distToScreen / (newZ + 0.1))) + (lib.ScreenH/2))
+            col = lib.vertexData[p][1]
+            if -lib.maxDist < newZ < -0.1 and lineDraw:
                 quad_add.append([screenX, screenY])
-                col = lib.vertexData[p][1]
+            
+            saveMainPos.append([int(newX), int(newY), int(newZ)])
 
-                if first:
-                    setX, setY, setZ = int(newX), int(newY), int(newZ)
-                    first = False
-
-            if pointDraw:
-                transformed_objects.append((screenX, screenY, (lib.distToScreen / newZ), lib.vertexData[p][1], p))
-        
+            if -lib.maxDist < newZ < -1 and pointDraw:
+                transformed_objects.append((screenX, screenY, int(lib.distToScreen / newZ), col))
+        setX, setY, setZ = checkPos(saveMainPos)
         try:
             all_quads.append([[setX, setY, setZ], quad_add, col])
         except Exception:
             continue
 
     if lineDraw:
-        sorted_quads = sorted(all_quads, key=lambda quadSet: quadSet[0][2], reverse=True)
+        #sorted_quads = sorted(all_quads, key=lambda quadSet: math.sqrt((quadSet[0][0] - lib.Cam[0])**2 + (quadSet[0][1] - lib.Cam[1])**2 + (quadSet[0][2] - lib.Cam[2])**2), reverse=True)
+        sorted_quads = sorted(all_quads, key=lambda quadSet: quadSet[0][2], reverse=False)
 
         for pos, allQuads, i in sorted_quads:
             try:
-                #proj.drawQuadLines(quad_add, col, pygame, screen)
+                #proj.drawQuadLines(quad_add, col, screen)
                 
                 if lib.style == "Main":
                     lMove, rMove = 4, 4
@@ -121,12 +132,12 @@ def transform_render(pygame, screen):
                 if lib.style == "Playdate":
                     lMove, rMove = 4, 4
                     lib.objFillSize = 7
-                proj.drawFilledQuads(pygame, screen, allQuads, i, lMove, rMove)
+                proj.drawFilledQuads(screen, allQuads, i, lMove, rMove)
             except Exception as e:
                 pass
     
     if pointDraw:
         sorted_objects = sorted(transformed_objects, key=lambda objs: objs[2], reverse=True)
         
-        for tx, ty, s, iD, i in sorted_objects:
-            proj._3DProjection(tx, ty, s, iD, i, 1, pygame, screen)
+        for tx, ty, s, c in sorted_objects:
+            proj.projectRect(tx, ty, s, c, 0, screen)
