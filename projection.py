@@ -7,20 +7,18 @@ def projectRect(x, y, scale, ID, draw, screen):
     if draw == 1:
         lib.text_to_screen(str(i), (255, 0, 0), x, y - 30, screen)
 
-def drawQuadLines(quads, ID, pygame, screen):
-    try:
-        v1 = quads[0]
-        v2 = quads[1]
-        v3 = quads[2]
-        v4 = quads[3]
-    except Exception as e:
-        #print(e)
-        return
+def drawQuadLines(quads, size, pygame, screen):
+    v1 = quads[0]
+    v2 = quads[1]
+    v3 = quads[2]
+    v4 = quads[3]
 
+    print("drawing")
     def draw_line(p1, p2):
         x1, y1 = int(p1[0]), int(p1[1])
         x2, y2 = int(p2[0]), int(p2[1])
-        pygame.draw.line(screen, lib.color[ID], (x1,y1),(x2,y2), 2)
+        pygame.draw.line(screen, (0, 0, 0), (x1,y1),(x2,y2), size)
+        print("done")
 
     draw_line(v1, v2)
     draw_line(v3, v4)

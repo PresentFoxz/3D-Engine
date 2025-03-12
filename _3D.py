@@ -103,27 +103,24 @@ def transform_render(pygame, screen):
 
             screenX, screenY = int((newX * (lib.distToScreen / (newZ + 0.1))) + (lib.ScreenW/2)), int((newY * (lib.distToScreen / (newZ + 0.1))) + (lib.ScreenH/2))
             col = lib.vertexData[p][1]
-            if -lib.maxDist < newZ < -0.1 and lineDraw:
+            if lineDraw:
                 quad_add.append([screenX, screenY])
-            
+            if pointDraw:
+                transformed_objects.append((screenX, screenY, int(lib.distToScreen / newZ), col))
             saveMainPos.append([int(newX), int(newY), int(newZ)])
 
-            if -lib.maxDist < newZ < -1 and pointDraw:
-                transformed_objects.append((screenX, screenY, int(lib.distToScreen / newZ), col))
         setX, setY, setZ = checkPos(saveMainPos)
         try:
-            all_quads.append([[setX, setY, setZ], quad_add, col])
+            if -lib.maxDist < setZ < -1:
+                all_quads.append([[setX, setY, setZ], quad_add, col])
         except Exception:
             continue
 
     if lineDraw:
-        #sorted_quads = sorted(all_quads, key=lambda quadSet: math.sqrt((quadSet[0][0] - lib.Cam[0])**2 + (quadSet[0][1] - lib.Cam[1])**2 + (quadSet[0][2] - lib.Cam[2])**2), reverse=True)
         sorted_quads = sorted(all_quads, key=lambda quadSet: quadSet[0][2], reverse=False)
 
         for pos, allQuads, i in sorted_quads:
             try:
-                #proj.drawQuadLines(quad_add, col, screen)
-                
                 if lib.style == "Main":
                     lMove, rMove = 4, 4
                 if lib.style == "Thumby":
@@ -133,6 +130,7 @@ def transform_render(pygame, screen):
                     lMove, rMove = 4, 4
                     lib.objFillSize = 7
                 proj.drawFilledQuads(screen, allQuads, i, lMove, rMove)
+                proj.drawQuadLines(allQuads, 5, screen)
             except Exception as e:
                 pass
     
