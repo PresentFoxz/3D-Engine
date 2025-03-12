@@ -87,7 +87,7 @@ __Init__(random.randint(2, (lib.size[0] * 4) - 2), random.randint((lib.size[1] *
 
 running = True
 while running:
-    screen.fill((0, 0, 0))
+    screen.fill((100, 0, 100))
 
     movement()
     _3D.transform_render(pygame, screen)
