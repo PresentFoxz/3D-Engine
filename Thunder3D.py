@@ -83,7 +83,7 @@ def __Init__(x,y,z,rx,ry):
     lib.rot[0] = rx
     lib.rot[1] = ry
 
-__Init__(random.randint(2, (lib.size[0] * 4) - 2), random.randint((lib.size[1] * 4) + 2, (lib.size[1] * 4) + 10), random.randint(2, (lib.size[2] * 4) - 2), 0, 0)
+#__Init__(random.randint(2, (lib.size[0] * 4) - 2), random.randint((lib.size[1] * 4) + 2, (lib.size[1] * 4) + 10), random.randint(2, (lib.size[2] * 4) - 2), 0, 0)
 
 running = True
 while running:
