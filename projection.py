@@ -25,6 +25,34 @@ def drawQuadLines(quads, size, pygame, screen):
     draw_line(v1, v4)
     draw_line(v2, v3)
 
+def drawFilledTris(screen, triangle, iD, x_step, y_step):
+    min_y = max(0, int(triangle[0][1]))
+    max_y = min(lib.ScreenH, int(triangle[-1][1]))
+
+    for y in range(min_y, max_y, y_step):
+        intersections = []
+
+        for i in range(3):
+            v1, v2 = triangle[i], triangle[(i + 1) % 3]
+                
+            if (v1[1] <= y < v2[1]) or (v2[1] <= y < v1[1]):
+                dy = (v2[1] - v1[1])
+                if dy != 0:
+                    t = (y - v1[1]) / dy
+                    x_intersect = v1[0] + t * (v2[0] - v1[0])
+                    intersections.append(int(x_intersect))
+
+        if len(intersections) == 2:
+            x_start, x_end = sorted(intersections)
+            x_start = max(0, x_start)
+            x_end = min(lib.ScreenW, x_end)
+
+            for x in range(x_start, x_end, x_step):
+                if x_step == 1 and y_step == 1:
+                    screen.set_at((x, y), lib.color[iD])
+                else:
+                    pygame.draw.rect(screen, lib.color[iD], (x, y, lib.objFillSize, lib.objFillSize))
+
 def drawFilledQuads(screen, vertices, iD, x_step, y_step):
     triangle1 = sorted([vertices[0], vertices[1], vertices[2]], key=lambda v: v[1])
     triangle2 = sorted([vertices[2], vertices[3], vertices[0]], key=lambda v: v[1])
@@ -60,14 +88,18 @@ def drawFilledQuads(screen, vertices, iD, x_step, y_step):
     fill_triangle(triangle1)
     fill_triangle(triangle2)
 
-def RotationMatrix(x,y,z, sin1,cos1,sin2,cos2):
-    lib.objRot[0] = ((z * sin1) + (x * cos1))
-    lib.objRot[2] = ((z * cos1) - (x * sin1))
+def RotationMatrix(x, y, z, sin1, cos1, sin2, cos2, sin3, cos3):
+    tempX = (z * sin1) + (x * cos1)
+    tempZ = (z * cos1) - (x * sin1)
 
-    lib.objRot[1] = ((lib.objRot[2] * sin2) + (y * cos2))
-    lib.objRot[2] = ((lib.objRot[2] * cos2) - (y * sin2))
+    tempY = (tempZ * sin2) + (y * cos2)
+    finalZ = (tempZ * cos2) - (y * sin2)
 
-    return lib.objRot[0], lib.objRot[1], lib.objRot[2]
+    finalX = (tempX * cos3) - (tempY * sin3)
+    finalY = (tempX * sin3) + (tempY * cos3)
+
+    return finalX, finalY, finalZ
+
 
 def compute_normal(v0, v1, v2, v3):
     u = (v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2])
@@ -135,3 +167,35 @@ def apply_projection(matrix, point):
     #    projected_z /= projected_w
 
     return (projected_x, projected_y, projected_z)
+
+def project2D(point):
+    x, y, z = point
+
+    if z == 0:
+        z = 0.0001
+    
+    f = 1 / (lib.distToScreen / 2)
+
+    projected_x = (x / z) * f
+    projected_y = (y / z) * f
+
+    screen_x = int((projected_x + 1) * 0.5 * lib.ScreenW)
+    screen_y = int((1 - projected_y) * 0.5 * lib.ScreenH)
+
+    return screen_x, screen_y
+
+def checkPos(points):
+    xm = sum(v[0] for v in points) / len(points)
+    ym = sum(v[1] for v in points) / len(points)
+    zm = sum(v[2] for v in points) / len(points)
+    
+    return (xm, ym, zm)
+
+def ease(amt, cap):
+    lib.rot[2] += amt
+    if cap > 0:
+        if lib.rot[2] > cap:
+            lib.rot[2] = cap
+    elif cap < 0:
+        if lib.rot[2] < cap:
+            lib.rot[2] = cap
