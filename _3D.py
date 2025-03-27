@@ -68,8 +68,8 @@ def collide():
             lib.Cam[1] = lib.Last[1]
 
 def transform_render(pygame, screen):
-    CamXDirSin = -math.sin(lib.rot[0])
-    CamXDirCos = math.cos(lib.rot[0])
+    CamXDirSin = -math.sin(lib.rot[0] + lib.rotSpeed[2])
+    CamXDirCos = math.cos(lib.rot[0] + lib.rotSpeed[2])
     CamYDirSin = -math.sin(lib.rot[1])
     CamYDirCos = math.cos(lib.rot[1])
     CamZDirSin = -math.sin(lib.rot[2])

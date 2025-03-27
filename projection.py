@@ -191,7 +191,7 @@ def checkPos(points):
     
     return (xm, ym, zm)
 
-def ease(amt, cap):
+def easeX(amt, cap):
     lib.rot[2] += amt
     if cap > 0:
         if lib.rot[2] > cap:
@@ -199,3 +199,12 @@ def ease(amt, cap):
     elif cap < 0:
         if lib.rot[2] < cap:
             lib.rot[2] = cap
+
+def easeY(amt, cap):
+    lib.rotSpeed[2] += amt
+    if cap > 0:
+        if lib.rotSpeed[2] > cap:
+            lib.rotSpeed[2] = cap
+    elif cap < 0:
+        if lib.rotSpeed[2] < cap:
+            lib.rotSpeed[2] = cap

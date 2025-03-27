@@ -27,20 +27,22 @@ def movement():
     if keyboard.is_pressed('w'):
         lib.Cam[0] += move_delta * math.sin(yaw)
         lib.Cam[2] += move_delta * math.cos(yaw)
+        proj.easeY(0.13, 0.15)
 
     if keyboard.is_pressed('s'):
         lib.Cam[0] -= move_delta * math.sin(yaw)
         lib.Cam[2] -= move_delta * math.cos(yaw)
+        proj.easeY(0.13, 0.15)
 
     if keyboard.is_pressed('d'):
         lib.Cam[0] -= move_delta * math.cos(yaw)
         lib.Cam[2] += move_delta * math.sin(yaw)
-        proj.ease(-0.13, -0.15)
+        proj.easeX(-0.13, -0.15)
 
     if keyboard.is_pressed('a'):
         lib.Cam[0] += move_delta * math.cos(yaw)
         lib.Cam[2] -= move_delta * math.sin(yaw)
-        proj.ease(0.13, 0.15)
+        proj.easeX(0.13, 0.15)
 
     if keyboard.is_pressed('up'):
         lib.rotSpeed[1] -= rotY_delta
@@ -58,9 +60,6 @@ def movement():
         lib.Cam[1] -= move_delta
     
     camClamp()
-
-    lib.rot[1] += lib.rotSpeed[0]
-    lib.rot[0] += lib.rotSpeed[1]
     
     #_3D.collide()
 
@@ -73,32 +72,22 @@ def camClamp():
         else:
             lib.rot[2] += 0.05
     
-    if -0.001 < lib.rotSpeed[0] < 0.001:
-        lib.rotSpeed[0] = 0
-    if lib.rotSpeed[0] != 0:
-        if lib.rotSpeed[0] > 0:
-            lib.rotSpeed[0] -= 0.05
-        else:
-            lib.rotSpeed[0] += 0.05
-        
-        if lib.rotSpeed[0] > 1:
-            lib.rotSpeed[0] = 1
-        elif lib.rotSpeed[0] < -1:
-            lib.rotSpeed[0] = -1
+    for a in range(3):
+        if -0.001 < lib.rotSpeed[a] < 0.001:
+            lib.rotSpeed[a] = 0
+        if lib.rotSpeed[a] != 0:
+            if lib.rotSpeed[a] > 0:
+                lib.rotSpeed[a] -= 0.05
+            else:
+                lib.rotSpeed[a] += 0.05
+            
+            if lib.rotSpeed[a] > 1:
+                lib.rotSpeed[a] = 1
+            elif lib.rotSpeed[a] < -1:
+                lib.rotSpeed[a] = -1
     
-    if -0.001 < lib.rotSpeed[1] < 0.001:
-        lib.rotSpeed[1] = 0
-    if lib.rotSpeed[1] != 0:
-        if lib.rotSpeed[1] > 0:
-            lib.rotSpeed[1] -= 0.05
-        else:
-            lib.rotSpeed[1] += 0.05
-        
-        if lib.rotSpeed[1] > 1:
-            lib.rotSpeed[1] = 1
-        elif lib.rotSpeed[1] < -1:
-            lib.rotSpeed[1] = -1
-
+    lib.rot[1] += lib.rotSpeed[0]
+    lib.rot[0] += lib.rotSpeed[1]
     
     if lib.rot[0] < -1.5:
         lib.rot[0] = -1.5

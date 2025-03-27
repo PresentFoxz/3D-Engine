@@ -3,7 +3,7 @@ import pygame
 Cam = [0,0,-5]
 Last = [0,0,-5]
 rot = [0,0,0]
-rotSpeed = [0,0]
+rotSpeed = [0,0,0]
 obj = []
 vertexData = []
 quadData = []
