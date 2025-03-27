@@ -68,15 +68,20 @@ def collide():
             lib.Cam[1] = lib.Last[1]
 
 def transform_render(pygame, screen):
-    CamXDirSin = math.sin(0 - lib.rot[0])
-    CamXDirCos = math.cos(0 - lib.rot[0])
-    CamYDirSin = math.sin(0 - lib.rot[1])
-    CamYDirCos = math.cos(0 - lib.rot[1])
-    
+    CamXDirSin = -math.sin(lib.rot[0] + lib.rotSpeed[2])
+    CamXDirCos = math.cos(lib.rot[0] + lib.rotSpeed[2])
+    CamYDirSin = -math.sin(lib.rot[1])
+    CamYDirCos = math.cos(lib.rot[1])
+    CamZDirSin = -math.sin(lib.rot[2])
+    CamZDirCos = math.cos(lib.rot[2])
+
     transformed_objects = []
     all_quads = []
     pointDraw = False
     lineDraw = True
+    quads = False
+    tris = True
+    lines = False
     for z in lib.quadData:
         dP = proj.computeDotProduct(lib.vertexData, z)
         quad_add = []
@@ -86,14 +91,13 @@ def transform_render(pygame, screen):
             continue
         for p in z:
             try:
-                rot = proj.RotationMatrix(lib.vertexData[p][0][0] - lib.Cam[0], lib.vertexData[p][0][1] - lib.Cam[1], lib.vertexData[p][0][2] - lib.Cam[2], CamYDirSin, CamYDirCos, CamXDirSin, CamXDirCos)
+                rot = proj.RotationMatrix(lib.vertexData[p][0][0] - lib.Cam[0], lib.vertexData[p][0][1] - lib.Cam[1], lib.vertexData[p][0][2] - lib.Cam[2], CamYDirSin, CamYDirCos, CamXDirSin, CamXDirCos, CamZDirSin, CamZDirCos)
                 proj_matrix = proj.perspective_matrix(lib.distToScreen, (lib.ScreenW / lib.ScreenH), 0, lib.maxDist)
                 newX, newY, newZ = proj.apply_projection(proj_matrix, rot)
             except Exception:
                 canContinue = False
                 break
             
-            print(p)
             screenX, screenY = proj.project2D([newX, newY, newZ])
             col = lib.vertexData[p][1]
             if lineDraw:
@@ -103,13 +107,34 @@ def transform_render(pygame, screen):
             saveMainPos.append([int(newX), int(newY), int(newZ)])
 
         if canContinue:
-            setX, setY, setZ = proj.checkPos(saveMainPos)
             try:
-                all_quads.append([[setX, setY, setZ], quad_add, col])
-            except Exception:
+                setX, setY, setZ = proj.checkPos(saveMainPos)
+
+                if setZ > 0:
+                    continue
+                else:
+                    if quads:
+                        all_quads.append([[setX, setY, setZ], quad_add, col])
+                    if tris:
+                        triangle1 = sorted([saveMainPos[0], saveMainPos[1], saveMainPos[2]], key=lambda v: v[1])
+                        triangle2 = sorted([saveMainPos[2], saveMainPos[3], saveMainPos[0]], key=lambda v: v[1])
+
+                        setX1, setY1, setZ1 = proj.checkPos(triangle1)
+                        setX2, setY2, setZ2 = proj.checkPos(triangle2)
+
+                        point1 = sorted([quad_add[0], quad_add[1], quad_add[2]], key=lambda v: v[1])
+                        point2 = sorted([quad_add[2], quad_add[3], quad_add[0]], key=lambda v: v[1])
+
+                        all_quads.append([[setX1, setY1, setZ1], point1, col])
+                        all_quads.append([[setX2, setY2, setZ2], point2, col])
+                    if lines:
+                        all_quads.append([[setX, setY, setZ], quad_add, col])
+            except Exception as e:
+                print(e)
                 continue
 
     if lineDraw:
+        loop = False
         sorted_quads = sorted(all_quads, key=lambda quadSet: quadSet[0][2], reverse=False)
 
         for pos, allQuads, i in sorted_quads:
@@ -122,7 +147,17 @@ def transform_render(pygame, screen):
                 if lib.style == "Playdate":
                     lMove, rMove = 4, 4
                     lib.objFillSize = 7
-                proj.drawFilledQuads(screen, allQuads, i, lMove, rMove)
+                
+                if loop:
+                    proj.drawFilledTris(screen, allQuads, i, lMove, rMove)
+                    loop = False
+                    continue
+                
+                if len(allQuads) > 3:
+                    proj.drawFilledQuads(screen, allQuads, i, lMove, rMove)
+                else:
+                    proj.drawFilledTris(screen, allQuads, i, lMove, rMove)
+                    loop = True
                 #proj.drawQuadLines(allQuads, 5, screen)
             except Exception as e:
                 pass
