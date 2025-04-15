@@ -15,8 +15,9 @@ clock = pygame.time.Clock()
 
 def movement():
     move_delta = 0.5
-    rotY_delta = 0.1
-    rotX_delta = 0.1
+    rotY_delta = -0.1
+    rotX_delta = -0.1
+    rot_delta = 0.1
     
     yaw = lib.rot[1]
 
@@ -27,31 +28,31 @@ def movement():
     if keyboard.is_pressed('w'):
         lib.Cam[0] += move_delta * math.sin(yaw)
         lib.Cam[2] += move_delta * math.cos(yaw)
-        proj.easeY(0.13, 0.15)
+        #proj.easeY(0.13, 0.15)
 
     if keyboard.is_pressed('s'):
         lib.Cam[0] -= move_delta * math.sin(yaw)
         lib.Cam[2] -= move_delta * math.cos(yaw)
-        proj.easeY(0.13, 0.15)
+        #proj.easeY(0.13, 0.15)
 
     if keyboard.is_pressed('d'):
         lib.Cam[0] -= move_delta * math.cos(yaw)
         lib.Cam[2] += move_delta * math.sin(yaw)
-        proj.easeX(-0.13, -0.15)
+        #proj.easeX(-0.13, -0.15)
 
     if keyboard.is_pressed('a'):
         lib.Cam[0] += move_delta * math.cos(yaw)
         lib.Cam[2] -= move_delta * math.sin(yaw)
-        proj.easeX(0.13, 0.15)
+        #proj.easeX(0.13, 0.15)
 
     if keyboard.is_pressed('up'):
-        lib.rotSpeed[1] -= rotY_delta
+        lib.rot[0] -= rot_delta
     if keyboard.is_pressed('down'):
-        lib.rotSpeed[1] += rotY_delta
+        lib.rot[0] += rot_delta
     if keyboard.is_pressed('left'):
-        lib.rotSpeed[0] += rotX_delta
+        lib.rot[1] += rot_delta
     if keyboard.is_pressed('right'):
-        lib.rotSpeed[0] -= rotX_delta
+        lib.rot[1] -= rot_delta
 
     if keyboard.is_pressed('q'):
         lib.Cam[1] += move_delta
@@ -112,7 +113,8 @@ def __Init__(x,y,z,rx,ry):
 
 running = True
 while running:
-    screen.fill((100, 0, 100))
+    #print("Start")
+    screen.fill((0, 0, 0))
 
     movement()
     _3D.transform_render(pygame, screen)
@@ -132,5 +134,7 @@ while running:
 
     pygame.display.flip()
     clock.tick(30)
+
+    #print("Finish")
 
 pygame.quit()
