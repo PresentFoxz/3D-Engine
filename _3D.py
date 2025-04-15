@@ -17,7 +17,7 @@ def createWorld():
         for x in range(lib.size[2]):
             for z in range(lib.size[0]):
                 gen = random.randint(0,5)
-                if gen > -1:
+                if gen > 2:
                     AddObj(x * lib.objSize, y * lib.objSize, z * lib.objSize, random.randint(1,2))
                 else:
                     AddObj(x * lib.objSize, y * lib.objSize, z * lib.objSize, 0)
@@ -128,9 +128,9 @@ def transform_render(pygame, screen):
                 lMove, rMove = 7, 7
             if lib.style == "Playdate":
                 lMove, rMove = 7, 7
-            #proj.drawFilledTris(screen, texture, allTris, uv, lMove, rMove)
+            proj.drawFilledTris(screen, texture, allTris, uv, lMove, rMove)
 
-            print(pos)
+            #print(pos)
 
             if pos[2] > -5:
                 proj.drawTriLines(allTris, 1, pygame, screen)

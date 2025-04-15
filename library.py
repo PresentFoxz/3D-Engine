@@ -8,7 +8,7 @@ rotSpeed = [0,0,0]
 obj = []
 vertexData = []
 triData = []
-size = bytearray([1, 1, 1])
+size = bytearray([15, 15, 15])
 objSize = 4
 objDrawSize = 10
 maxDist = 20
@@ -52,20 +52,20 @@ tri = [
     [3, 2, 1],  # Front (first triangle)
     [3, 1, 0],  # Front (second triangle)
     
-    #[4, 5, 6],  # Back (first triangle)
-    #[4, 6, 7],  # Back (second triangle)
+    [4, 5, 6],  # Back (first triangle)
+    [4, 6, 7],  # Back (second triangle)
     
-    #[3, 0, 4],  # Left (first triangle)
-    #[3, 4, 7],  # Left (second triangle)
+    [3, 0, 4],  # Left (first triangle)
+    [3, 4, 7],  # Left (second triangle)
     
-    #[1, 2, 6],  # Right (first triangle)
-    #[1, 6, 5],  # Right (second triangle)
+    [1, 2, 6],  # Right (first triangle)
+    [1, 6, 5],  # Right (second triangle)
     
-    #[2, 3, 7],  # Top (first triangle)
-    #[2, 7, 6],  # Top (second triangle)
+    [2, 3, 7],  # Top (first triangle)
+    [2, 7, 6],  # Top (second triangle)
     
-    #[0, 1, 5],  # Bottom (first triangle)
-    #[0, 5, 4]  # Bottom (second triangle)
+    [0, 1, 5],  # Bottom (first triangle)
+    [0, 5, 4]  # Bottom (second triangle)
 ]
 
 uv_coords = [(0, 0), (1, 0), (1, 1), (0, 1)]
